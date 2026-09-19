@@ -86,16 +86,20 @@
   }
 
   /* ---------------- Envío de mensajes ---------------- */
+  /* ---------------- Envío de mensajes ---------------- */
   async function sendToTutor() {
     typing.hidden = false;
     input.disabled = true;
     form.querySelector(".composer__send").disabled = true;
 
     try {
-      const res = await fetch(ENDPOINT, {
+      const res = await fetch("https://tutorpaul-backend.onrender.com/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history }),
+        body: JSON.stringify({ 
+          history: history,
+          message: history[history.length - 1]?.text || ""
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -104,8 +108,9 @@
         throw new Error(data.error || "No se pudo obtener respuesta.");
       }
 
-      history.push({ role: "model", text: data.text });
-      renderMessage({ role: "model", text: data.text });
+      const replyText = data.text || data.reply || "Sin respuesta del tutor.";
+      history.push({ role: "model", text: replyText });
+      renderMessage({ role: "model", text: replyText });
     } catch (err) {
       renderMessage({
         role: "model",
@@ -122,7 +127,6 @@
       input.focus();
     }
   }
-
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
