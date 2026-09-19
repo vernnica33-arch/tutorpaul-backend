@@ -15,7 +15,7 @@
   const creditsModal = document.getElementById("creditsModal");
   const challengeBtn = document.getElementById("challengeBtn");
 
-  const ENDPOINT = "/api/chat";
+  const ENDPOINT = "https://tutorpaul-backend.onrender.com/api/chat";
 
   // Historial en memoria para dar contexto al modelo (rol 'user' | 'model').
   let history = [];
@@ -91,8 +91,7 @@
     form.querySelector(".composer__send").disabled = true;
 
     try {
-      // AQUÍ DEBE IR LA URL DIRECTA DE RENDER:
-      const res = await fetch("https://tutorpaul-backend.onrender.com/api/chat", {
+      const res = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
