@@ -84,15 +84,14 @@
         "Cuéntame: ¿en qué tema quieres trabajar hoy — vocabulario, gramática, o prefieres un reto rápido?",
     });
   }
-
-  /* ---------------- Envío de mensajes ---------------- */
-  /* ---------------- Envío de mensajes ---------------- */
+ /* ---------------- Envío de mensajes ---------------- */
   async function sendToTutor() {
     typing.hidden = false;
     input.disabled = true;
     form.querySelector(".composer__send").disabled = true;
 
     try {
+      // AQUÍ DEBE IR LA URL DIRECTA DE RENDER:
       const res = await fetch("https://tutorpaul-backend.onrender.com/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,31 +126,6 @@
       input.focus();
     }
   }
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-
-    history.push({ role: "user", text });
-    renderMessage({ role: "user", text });
-    input.value = "";
-    autoGrow();
-    sendToTutor();
-  });
-
-  // Enviar con Enter, salto de línea con Shift+Enter.
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      form.requestSubmit();
-    }
-  });
-
-  function autoGrow() {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 120) + "px";
-  }
-  input.addEventListener("input", autoGrow);
 
   /* ---------------- Reto rápido ---------------- */
   challengeBtn.addEventListener("click", () => {
