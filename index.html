@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full antialiased">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutor Paul — Tutor Socrático de Inglés (1° BGU - Colegio AAMPETRA)</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            accent: {
+              DEFAULT: '#0095f6', // Threads blue accent
+              dark: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons for UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    .hairline-b { border-bottom: 1px solid rgba(150, 150, 150, 0.15); }
+    .hairline-t { border-top: 1px solid rgba(150, 150, 150, 0.15); }
+    .hairline-l { border-left: 2px solid rgba(150, 150, 150, 0.2); }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 9999px; }
+
+    /* Accessibility Focus Ring */
+    *:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+    
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="h-full bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-200 font-sans flex flex-col">
+
+  <!-- Header / Navigation Bar (Threads Style) -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-md hairline-b">
+    <div class="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
+      <!-- App Brand & Handle -->
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-bold text-lg shadow-sm" aria-hidden="true">
+          @
+        </div>
+        <div>
+          <h1 class="font-bold text-base leading-tight flex items-center gap-1.5">
+            Tutor Paul
+            <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">1° BGU</span>
+          </h1>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Colegio AAMPETRA • Inglés Socrático</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-1">
+        <!-- Deployment & Readme Guide Trigger -->
+        <button id="readmeBtn" title="Guía de Despliegue en Netlify" aria-label="Ver Guía de Despliegue Netlify" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+          <i class="fa-solid fa-book text-sm"></i>
+        </button>
+
+        <!-- API Key Modal Trigger -->
+        <button id="apiKeyBtn" title="Configurar API Key de Gemini" aria-label="Configurar API Key" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+          <i class="fa-solid fa-key text-sm"></i>
+        </button>
+
+        <!-- Credits Modal Trigger -->
+        <button id="creditsBtn" title="Créditos y Perfil Docente" aria-label="Ver Créditos del Profe Paul" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+          <i class="fa-solid fa-user-gear text-sm"></i>
+        </button>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button id="themeToggle" title="Cambiar Tema (Modo Claro/Oscuro)" aria-label="Cambiar Tema" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition">
+          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sub-Header / Socratic Mode Selectors -->
+  <section class="bg-neutral-50 dark:bg-neutral-900/50 hairline-b py-2.5 px-4 sticky top-14 z-20" aria-label="Modos de Aprendizaje">
+    <div class="max-w-xl mx-auto flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+      <button data-mode="socratic" class="mode-btn active-mode flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 transition">
+        <i class="fa-solid fa-comments"></i> Chat Socrático
+      </button>
+      <button data-mode="quiz" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-neutral-200/70 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition">
+        <i class="fa-solid fa-bolt text-amber-500"></i> Desafío Quick-Quiz
+      </button>
+      <button data-mode="correction" class="mode-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-neutral-200/70 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition">
+        <i class="fa-solid fa-pen-nib text-accent"></i> Revisar Párrafo
+      </button>
+      <button id="clearChatBtn" class="p-1.5 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-xs ml-auto" title="Reiniciar Conversación" aria-label="Reiniciar Conversación">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Thread Feed Container -->
+  <main id="mainContent" class="flex-1 max-w-xl w-full mx-auto px-4 py-4 overflow-y-auto pb-36" tabindex="-1">
+    <!-- Welcome Post / Initial Socratic Prompt -->
+    <div id="feed" class="space-y-6" role="log" aria-live="polite">
+      
+      <!-- Thread Item: Tutor Welcome -->
+      <article class="flex gap-3 text-sm">
+        <!-- Avatar Column -->
+        <div class="flex flex-col items-center">
+          <img src="yo.jpg" onerror="this.onerror=null; this.src='https://placehold.co/100x100/171717/ffffff?text=Paul';" alt="Profe Paul Iñiguez" class="w-10 h-10 rounded-full object-cover border border-neutral-300 dark:border-neutral-700">
+          <div class="w-0.5 flex-1 bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+        </div>
+
+        <!-- Content Column -->
+        <div class="flex-1 space-y-2 pb-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-neutral-900 dark:text-white">Profe Paul Iñiguez</span>
+              <span class="text-xs text-neutral-400">@profe.paul</span>
+              <span class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full font-medium">Docente 1° BGU</span>
+            </div>
+            <span class="text-xs text-neutral-400">Ahora</span>
+          </div>
+
+          <p class="text-neutral-800 dark:text-neutral-200 leading-relaxed">
+            ¡Hola! 👋 Bienvenido a tu espacio socrático de Inglés para <strong>1° de Bachillerato (BGU)</strong> en el Colegio AAMPETRA.
+          </p>
+          <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+            Aquí no te daré las respuestas servidas. Te acompañaré con preguntas clave para que tú mismo/a analices tus oraciones, identifiques estructuras gramaticales (Simple Past vs. Past Continuous, Present Perfect, Modals, Conditionals) y amplíes tu vocabulario. 💡
+          </p>
+
+          <div class="pt-2 flex flex-wrap gap-2">
+            <button onclick="sendQuickPrompt('Help me practice Simple Past vs Past Continuous for 1st BGU')" class="text-xs px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
+              📜 Simple Past vs Past Continuous
+            </button>
+            <button onclick="sendQuickPrompt('I want to test my English with a short Socratic challenge!')" class="text-xs px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
+              🎯 Desafío Socrático Corto
+            </button>
+            <button onclick="sendQuickPrompt('How do I write a short paragraph about my daily routine in English?')" class="text-xs px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
+              ✍️ Párrafo sobre Rutina
+            </button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Typing Indicator / Thinking Post -->
+    <div id="typingIndicator" class="hidden flex gap-3 text-sm mt-4">
+      <div class="w-10 h-10 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-bold text-xs" aria-hidden="true">
+        AI
+      </div>
+      <div class="flex-1 bg-neutral-100 dark:bg-neutral-900 p-3 rounded-2xl flex items-center gap-2 text-neutral-500">
+        <i class="fa-solid fa-circle-notch animate-spin text-neutral-400"></i>
+        <span class="text-xs">Tutor Paul está formulando una pregunta socrática...</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Fixed Bottom Threads Composer Input -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md hairline-t z-30 py-3 px-4">
+    <div class="max-w-xl mx-auto space-y-2">
+      
+      <!-- Current Model & Resiliency Badge -->
+      <div class="flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400 px-1">
+        <span id="activeModelBadge" class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Modelo activo: <strong id="modelNameDisplay">gemini-3-flash-preview</strong></span>
+        </span>
+        <span id="charCounter">0 / 1000</span>
+      </div>
+
+      <!-- Composer Form -->
+      <form id="chatForm" class="flex items-end gap-2 bg-neutral-100 dark:bg-neutral-900 rounded-2xl p-2 border border-neutral-200 dark:border-neutral-800 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100 transition">
+        <textarea id="userInput" rows="1" maxlength="1000" placeholder="Escribe tu duda o respuesta en inglés/español..." aria-label="Escribe tu consulta" class="flex-1 bg-transparent border-0 resize-none outline-none text-sm px-2 py-1.5 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 max-h-32"></textarea>
+        
+        <button type="submit" id="sendBtn" aria-label="Enviar mensaje" class="w-9 h-9 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center hover:opacity-90 disabled:opacity-40 transition shrink-0">
+          <i class="fa-solid fa-arrow-up text-sm"></i>
+        </button>
+      </form>
+    </div>
+  </footer>
+
+  <!-- Modal: Profile & Pedagogical Credits (Profe Paul Iñiguez) -->
+  <div id="creditsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-neutral-900 rounded-3xl max-w-md w-full p-6 border border-neutral-200 dark:border-neutral-800 shadow-2xl space-y-5 relative animate-in fade-in zoom-in duration-200">
+      <button id="closeCreditsBtn" aria-label="Cerrar ventana de créditos" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Profile Header -->
+      <div class="flex items-center gap-4">
+        <img src="yo.jpg" onerror="this.onerror=null; this.src='https://placehold.co/120x120/171717/ffffff?text=Paul';" alt="Profe Paul Iñiguez" class="w-16 h-16 rounded-full object-cover border-2 border-neutral-900 dark:border-white shadow-md">
+        <div>
+          <h2 class="text-lg font-bold text-neutral-900 dark:text-white leading-tight">Profe Paul Iñiguez</h2>
+          <p class="text-xs font-semibold text-accent">Responsable Técnico y Pedagógico</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Colegio AAMPETRA — Quito, Ecuador</p>
+        </div>
+      </div>
+
+      <div class="hairline-t pt-4 space-y-3 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+        <p>
+          🎯 <strong>Enfoque Pedagógico:</strong> Este tutor virtual está configurado exclusivamente con el <em>Método Socrático</em> para la asignatura de Inglés de 1° de Bachillerato General Unificado (BGU), adaptado a los niveles A2–B1 del MCER.
+        </p>
+        <p>
+          🧠 <strong>Objetivo del Tutor Paul:</strong> Acompañar al estudiante a construir su pensamiento crítico en idioma inglés, formulando preguntas guía, retroalimentando sin penalizar el error y reforzando la autonomía de aprendizaje.
+        </p>
+      </div>
+
+      <!-- Institutional Info & Contact -->
+      <div class="bg-neutral-50 dark:bg-neutral-950 p-3.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 space-y-2 text-xs">
+        <div class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+          <i class="fa-solid fa-school w-4 text-center"></i>
+          <span>Institución: <strong>Colegio AAMPETRA</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+          <i class="fa-solid fa-book-open w-4 text-center"></i>
+          <span>Nivel: <strong>1° de Bachillerato (BGU)</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+          <i class="fa-solid fa-envelope w-4 text-center"></i>
+          <span>Contacto: <a href="mailto:paul.iniguez@aampetra.edu.ec" class="underline hover:text-accent">paul.iniguez@aampetra.edu.ec</a></span>
+        </div>
+      </div>
+
+      <button id="closeCreditsConfirm" class="w-full py-2.5 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold text-xs hover:opacity-90 transition">
+        Entendido / Volver al Chat
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: API Key Configuration -->
+  <div id="apiKeyModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-neutral-900 rounded-3xl max-w-md w-full p-6 border border-neutral-200 dark:border-neutral-800 shadow-2xl space-y-4 relative">
+      <button id="closeApiKeyBtn" aria-label="Cerrar modal de API Key" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+          <i class="fa-solid fa-key text-base"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base text-neutral-900 dark:text-white">API Key de Gemini</h3>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Google AI Studio (Gratuita)</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
+        Al desplegar en Netlify, la clave se lee de forma segura en el servidor mediante la variable de entorno <code>GEMINI_API_KEY</code>. Para probar localmente o usar tu propia clave gratuita de Google AI Studio, puedes ingresarla aquí:
+      </p>
+
+      <input type="password" id="customApiKeyInput" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent">
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="clearApiKeyBtn" class="px-4 py-2 rounded-full text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
+          Borrar
+        </button>
+        <button id="saveApiKeyBtn" class="px-5 py-2 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-semibold hover:opacity-90 transition">
+          Guardar Clave
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Netlify Deployment & Architecture Guide -->
+  <div id="readmeModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-neutral-900 rounded-3xl max-w-xl w-full p-6 border border-neutral-200 dark:border-neutral-800 shadow-2xl space-y-4 relative max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between hairline-b pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-book text-accent"></i>
+          <h3 class="font-bold text-base text-neutral-900 dark:text-white">Guía de Despliegue en Netlify (README)</h3>
+        </div>
+        <button id="closeReadmeBtn" aria-label="Cerrar documentación" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto space-y-4 text-xs text-neutral-700 dark:text-neutral-300 pr-1 leading-relaxed">
+        <section class="space-y-1.5">
+          <h4 class="font-bold text-sm text-neutral-900 dark:text-white">1. Despliegue en Netlify</h4>
+          <p>Puedes publicar este proyecto en Netlify de dos maneras:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><strong>Opción A (Arrastrar y soltar):</strong> Arrastra la carpeta raíz que contiene este <code>index.html</code> directamente a la consola de Netlify Drop.</li>
+            <li><strong>Opción B (Git/GitHub):</strong> Conecta el repositorio en Netlify. Se detectará automáticamente la configuración en <code>netlify.toml</code>.</li>
+          </ul>
+        </section>
+
+        <section class="space-y-1.5">
+          <h4 class="font-bold text-sm text-neutral-900 dark:text-white">2. Configurar la Variable de Entorno</h4>
+          <p>Para proteger la API Key de Gemini y evitar que quede expuesta en el código cliente:</p>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>Obtén tu API Key gratuita en <a href="https://aistudio.google.com/" target="_blank" rel="noopener" class="text-accent underline">Google AI Studio</a>.</li>
+            <li>En Netlify, ve a <strong>Site Configuration &gt; Environment Variables</strong>.</li>
+            <li>Crea la variable <code>GEMINI_API_KEY</code> con el valor de tu clave.</li>
+          </ol>
+        </section>
+
+        <section class="space-y-1.5">
+          <h4 class="font-bold text-sm text-neutral-900 dark:text-white">3. Resiliencia de Modelos Automática</h4>
+          <p>El cliente y la función proxy prueban en secuencia la lista de modelos gratuitos:</p>
+          <code class="block bg-neutral-100 dark:bg-neutral-950 p-2 rounded border border-neutral-200 dark:border-neutral-800 font-mono">
+            gemini-3-flash-preview &rarr; gemini-2.5-flash &rarr; gemini-2.5-flash-lite &rarr; gemini-1.5-flash
+          </code>
+          <p>Si la lista fija falla, el sistema descubre automáticamente los modelos activos disponibles mediante el endpoint de listado de modelos de Google.</p>
+        </section>
+
+        <section class="space-y-1.5">
+          <h4 class="font-bold text-sm text-neutral-900 dark:text-white">4. Personalización de Créditos e Imagen</h4>
+          <p>Para actualizar los datos del docente responsable:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Coloca tu foto en la carpeta raíz nombrada como <code>yo.jpg</code> (o ajusta la ruta en el HTML).</li>
+            <li>Edita el modal de créditos en el código fuente para actualizar la institución, correo o nivel de Bachillerato.</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="pt-2 shrink-0">
+        <button id="closeReadmeConfirm" class="w-full py-2.5 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold text-xs hover:opacity-90 transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ====================================================================
+       SOCRATIC SYSTEM PROMPT & CURRICULUM CONFIGURATION
+       ==================================================================== */
+    const SOCRATIC_SYSTEM_PROMPT = `
+You are "Tutor Paul", a virtual Socratic English Tutor created by Profe Paul Iñiguez from Colegio AAMPETRA (Quito, Ecuador) for 1st Year Bachillerato General Unificado (1° BGU, target CEFR level A2–B1).
+
+PEDAGOGICAL & SOCRATIC RULES:
+1. SOCRATIC METHOD MANDATE:
+   - NEVER give the direct solution or complete corrected sentence immediately on the first attempt!
+   - Always ask 1 or 2 clear, guiding questions that help the student spot their mistake or figure out the answer independently.
+   - If the student explicitly asks for the answer or fails after 2-3 attempts, reveal the answer kindly and explain the rule.
+   - If the student answers correctly, praise their logic ("¡Excelente razonamiento!", "Great job!") and briefly explain WHY it's correct.
+2. LANGUAGE & ACCESSIBILITY:
+   - Write instructions, metacognitive guidance, and pedagogical hints in SPANISH (the student's native language).
+   - Enclose English sentences or practice phrases inside clear quotes or bold tags, e.g. **"I go to school yesterday"**.
+   - Encourage the student to respond in ENGLISH.
+3. CURRICULUM TOPICS (1° BGU ECUADOR):
+   - Grammar: Simple Past vs. Past Continuous, Present Perfect, Modal Verbs (should/must/can/could), First & Second Conditionals, Passive Voice (basic).
+   - Vocabulary: Daily routines, technology, environmental protection, Ecuadorian cultural context, sports and hobbies.
+   - Skills: Paragraph writing, error identification, short reading comprehension.
+4. TONE & FORMAT:
+   - Warm, respectful, encouraging, and enthusiastic ("¡Ánimo!", "Let's work together!").
+   - Format your responses in short, clean "Threads-style" paragraphs with line breaks and friendly emojis.
+   - Keep responses concise (under 150 words) so they look like social media feed posts.
+`;
+
+    const CANDIDATE_MODELS = [
+      'gemini-3-flash-preview',
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest'
+    ];
+
+    // App State
+    let currentMode = 'socratic'; // 'socratic', 'quiz', 'correction'
+    let conversationHistory = [];
+    let customApiKey = localStorage.getItem('tutor_paul_api_key') || '';
+
+    // DOM Elements
+    const feed = document.getElementById('feed');
+    const userInput = document.getElementById('userInput');
+    const chatForm = document.getElementById('chatForm');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const charCounter = document.getElementById('charCounter');
+    const modelNameDisplay = document.getElementById('modelNameDisplay');
+    const modeBtns = document.querySelectorAll('.mode-btn');
+
+    /* ====================================================================
+       THEME MANAGEMENT (LIGHT / DARK MODE WITH SYSTEM PREFERENCE + MANUAL TOGGLE)
+       ==================================================================== */
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('tutor_paul_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        themeIcon.className = 'fa-solid fa-sun text-sm text-amber-400';
+      } else {
+        document.documentElement.classList.remove('dark');
+        themeIcon.className = 'fa-solid fa-moon text-sm';
+      }
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('tutor_paul_theme', isDark ? 'dark' : 'light');
+      themeIcon.className = isDark ? 'fa-solid fa-sun text-sm text-amber-400' : 'fa-solid fa-moon text-sm';
+    });
+
+    initTheme();
+
+    /* ====================================================================
+       MODALS HANDLERS (CREDITS, API KEY, & README)
+       ==================================================================== */
+    const creditsModal = document.getElementById('creditsModal');
+    const creditsBtn = document.getElementById('creditsBtn');
+    const closeCreditsBtn = document.getElementById('closeCreditsBtn');
+    const closeCreditsConfirm = document.getElementById('closeCreditsConfirm');
+
+    creditsBtn.addEventListener('click', () => creditsModal.classList.remove('hidden'));
+    closeCreditsBtn.addEventListener('click', () => creditsModal.classList.add('hidden'));
+    closeCreditsConfirm.addEventListener('click', () => creditsModal.classList.add('hidden'));
+
+    const apiKeyModal = document.getElementById('apiKeyModal');
+    const apiKeyBtn = document.getElementById('apiKeyBtn');
+    const closeApiKeyBtn = document.getElementById('closeApiKeyBtn');
+    const customApiKeyInput = document.getElementById('customApiKeyInput');
+    const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+    const clearApiKeyBtn = document.getElementById('clearApiKeyBtn');
+
+    apiKeyBtn.addEventListener('click', () => {
+      customApiKeyInput.value = customApiKey;
+      apiKeyModal.classList.remove('hidden');
+    });
+    closeApiKeyBtn.addEventListener('click', () => apiKeyModal.classList.add('hidden'));
+
+    saveApiKeyBtn.addEventListener('click', () => {
+      customApiKey = customApiKeyInput.value.trim();
+      localStorage.setItem('tutor_paul_api_key', customApiKey);
+      apiKeyModal.classList.add('hidden');
+      addSystemNotification('✅ Clave de API guardada localmente.');
+    });
+
+    clearApiKeyBtn.addEventListener('click', () => {
+      customApiKey = '';
+      localStorage.removeItem('tutor_paul_api_key');
+      customApiKeyInput.value = '';
+      apiKeyModal.classList.add('hidden');
+      addSystemNotification('ℹ️ Clave borrada. Se usará el servidor predeterminado.');
+    });
+
+    const readmeModal = document.getElementById('readmeModal');
+    const readmeBtn = document.getElementById('readmeBtn');
+    const closeReadmeBtn = document.getElementById('closeReadmeBtn');
+    const closeReadmeConfirm = document.getElementById('closeReadmeConfirm');
+
+    readmeBtn.addEventListener('click', () => readmeModal.classList.remove('hidden'));
+    closeReadmeBtn.addEventListener('click', () => readmeModal.classList.add('hidden'));
+    closeReadmeConfirm.addEventListener('click', () => readmeModal.classList.add('hidden'));
+
+    /* ====================================================================
+       INPUT RESIZING & CHAR COUNTER
+       ==================================================================== */
+    userInput.addEventListener('input', () => {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+      charCounter.textContent = `${userInput.value.length} / 1000`;
+    });
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    /* ====================================================================
+       MODE SELECTOR HANDLER
+       ==================================================================== */
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach(b => {
+          b.classList.remove('bg-neutral-900', 'dark:bg-white', 'text-white', 'dark:text-neutral-900', 'active-mode');
+          b.classList.add('bg-neutral-200/70', 'dark:bg-neutral-800', 'text-neutral-700', 'dark:text-neutral-300');
+        });
+
+        btn.classList.remove('bg-neutral-200/70', 'dark:bg-neutral-800', 'text-neutral-700', 'dark:text-neutral-300');
+        btn.classList.add('bg-neutral-900', 'dark:bg-white', 'text-white', 'dark:text-neutral-900', 'active-mode');
+
+        currentMode = btn.dataset.mode;
+
+        if (currentMode === 'quiz') {
+          sendQuickPrompt('¡Hola Profe Paul! Genera un micro-desafío o reto rápido de gramática de 1° BGU en formato socrático.');
+        } else if (currentMode === 'correction') {
+          addSystemNotification('📝 Modo "Revisar Párrafo" activado. Escribe una oración o párrafo en inglés y te daré pistas socráticas para mejorarlo.');
+        }
+      });
+    });
+
+    document.getElementById('clearChatBtn').addEventListener('click', () => {
+      conversationHistory = [];
+      feed.innerHTML = `
+        <article class="flex gap-3 text-sm">
+          <div class="flex flex-col items-center">
+            <img src="yo.jpg" onerror="this.onerror=null; this.src='https://placehold.co/100x100/171717/ffffff?text=Paul';" alt="Profe Paul Iñiguez" class="w-10 h-10 rounded-full object-cover border border-neutral-300 dark:border-neutral-700">
+          </div>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-neutral-900 dark:text-white">Profe Paul Iñiguez</span>
+              <span class="text-xs text-neutral-400">@profe.paul</span>
+            </div>
+            <p class="text-neutral-800 dark:text-neutral-200">Conversación reiniciada. ¿En qué tema de Inglés de 1° BGU te gustaría trabajar hoy?</p>
+          </div>
+        </article>
+      `;
+    });
+
+    /* ====================================================================
+       STREAMING / GEMINI API WITH AUTOMATIC RESILIENT FALLBACK LOGIC
+       ==================================================================== */
+    async function requestGeminiWithFallback(contentsPayload) {
+      let apiKeyToUse = customApiKey;
+      let modelsToTry = [...CANDIDATE_MODELS];
+
+      for (let i = 0; i < modelsToTry.length; i++) {
+        const modelCandidate = modelsToTry[i];
+        modelNameDisplay.textContent = modelCandidate;
+
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelCandidate}:generateContent?key=${apiKeyToUse}`;
+          
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: contentsPayload,
+              systemInstruction: {
+                parts: [{ text: SOCRATIC_SYSTEM_PROMPT }]
+              }
+            })
+          });
+
+          if (response.status === 400 || response.status === 401 || response.status === 403) {
+            const errData = await response.json();
+            throw new Error(`Error de Autenticación API (${response.status}): ${errData.error?.message || 'Clave de API inválida'}`);
+          }
+
+          if (!response.ok) {
+            console.warn(`Modelo ${modelCandidate} retornó estado ${response.status}. Probando el siguiente modelo...`);
+            continue;
+          }
+
+          const data = await response.json();
+          const textReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+          if (textReply) {
+            return { text: textReply, modelUsed: modelCandidate };
+          }
+        } catch (error) {
+          if (error.message.includes('Error de Autenticación API')) {
+            throw error;
+          }
+          console.warn(`Falló la solicitud con ${modelCandidate}:`, error);
+        }
+      }
+
+      // Dynamic discovery fallback if fixed candidates fail
+      try {
+        console.info('Intentando descubrimiento dinámico de modelos activos...');
+        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKeyToUse}`;
+        const listRes = await fetch(listUrl);
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          const dynamicModels = (listData.models || [])
+            .filter(m => m.supportedGenerationMethods?.includes('generateContent') && m.name.includes('flash'))
+            .map(m => m.name.replace('models/', ''));
+
+          for (const dynModel of dynamicModels) {
+            if (CANDIDATE_MODELS.includes(dynModel)) continue;
+            modelNameDisplay.textContent = dynModel;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${dynModel}:generateContent?key=${apiKeyToUse}`;
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: contentsPayload,
+                systemInstruction: { parts: [{ text: SOCRATIC_SYSTEM_PROMPT }] }
+              })
+            });
+            if (response.ok) {
+              const data = await response.json();
+              const textReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (textReply) return { text: textReply, modelUsed: dynModel };
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error en descubrimiento dinámico:', e);
+      }
+
+      throw new Error('No se pudo conectar con los modelos de Gemini. Verifica tu API Key o conexión.');
+    }
+
+    /* ====================================================================
+       UI RENDERING FUNCTIONS
+       ==================================================================== */
+    function renderUserPost(message) {
+      const article = document.createElement('article');
+      article.className = 'flex gap-3 text-sm animate-in fade-in duration-200';
+      article.innerHTML = `
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center font-bold text-xs border border-neutral-300 dark:border-neutral-700">
+            TÚ
+          </div>
+          <div class="w-0.5 flex-1 bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+        </div>
+        <div class="flex-1 space-y-1.5 pb-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-neutral-900 dark:text-white">Estudiante 1° BGU</span>
+            <span class="text-xs text-neutral-400">Ahora</span>
+          </div>
+          <p class="text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(message)}</p>
+        </div>
+      `;
+      feed.appendChild(article);
+      scrollToBottom();
+    }
+
+    function renderTutorPost(messageText) {
+      const article = document.createElement('article');
+      article.className = 'flex gap-3 text-sm animate-in fade-in duration-200';
+      
+      const formattedText = formatMarkdown(messageText);
+      const postContentId = 'speech-' + Date.now();
+
+      article.innerHTML = `
+        <div class="flex flex-col items-center">
+          <img src="yo.jpg" onerror="this.onerror=null; this.src='https://placehold.co/100x100/171717/ffffff?text=Paul';" alt="Profe Paul" class="w-10 h-10 rounded-full object-cover border border-neutral-300 dark:border-neutral-700">
+          <div class="w-0.5 flex-1 bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+        </div>
+
+        <div class="flex-1 space-y-2 pb-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-neutral-900 dark:text-white">Profe Paul Iñiguez</span>
+              <span class="text-xs text-neutral-400">@profe.paul</span>
+            </div>
+            <button onclick="speakText('${postContentId}')" title="Escuchar pronunciación" aria-label="Escuchar pronunciación en inglés" class="text-xs text-neutral-400 hover:text-accent transition">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+
+          <div id="${postContentId}" class="text-neutral-800 dark:text-neutral-200 space-y-2 leading-relaxed">
+            ${formattedText}
+          </div>
+
+          <div class="pt-1 flex items-center gap-4 text-xs text-neutral-400">
+            <button class="hover:text-red-500 transition flex items-center gap-1"><i class="fa-regular fa-heart"></i> Pista útil</button>
+            <button class="hover:text-neutral-700 dark:hover:text-neutral-200 transition flex items-center gap-1"><i class="fa-regular fa-comment"></i> Responder</button>
+          </div>
+        </div>
+      `;
+      feed.appendChild(article);
+      scrollToBottom();
+    }
+
+    function addSystemNotification(msg) {
+      const div = document.createElement('div');
+      div.className = 'text-center text-xs text-neutral-500 dark:text-neutral-400 py-2 px-4 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 max-w-md mx-auto my-2';
+      div.textContent = msg;
+      feed.appendChild(div);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    /* ====================================================================
+       FORM SUBMISSION & CHAT FLOW
+       ==================================================================== */
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      charCounter.textContent = '0 / 1000';
+      sendBtn.disabled = true;
+
+      // Render User Message
+      renderUserPost(text);
+
+      // Append to memory history
+      conversationHistory.push({ role: 'user', parts: [{ text: text }] });
+
+      // Show typing indicator
+      typingIndicator.classList.remove('hidden');
+      scrollToBottom();
+
+      try {
+        const result = await requestGeminiWithFallback(conversationHistory);
+        typingIndicator.classList.add('hidden');
+
+        // Save model turn
+        conversationHistory.push({
+          role: 'model',
+          parts: [{ text: result.text }]
+        });
+
+        renderTutorPost(result.text);
+      } catch (err) {
+        typingIndicator.classList.add('hidden');
+        renderTutorPost(`⚠️ **Aviso de Tutor Paul:** ${err.message || 'Ha ocurrido un inconveniente al conectar con el servicio. Por favor intenta de nuevo.'}`);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    function sendQuickPrompt(promptText) {
+      userInput.value = promptText;
+      chatForm.dispatchEvent(new Event('submit'));
+    }
+
+    /* ====================================================================
+       AUDIO SYNTHESIS (READ ENGLISH ALOUD)
+       ==================================================================== */
+    function speakText(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      const textToRead = el.innerText;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    /* ====================================================================
+       TEXT HELPER UTILS & MARKDOWN PARSER
+       ==================================================================== */
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function formatMarkdown(text) {
+      let formatted = escapeHtml(text);
+
+      // Bold text (Practice fragments in English)
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong lang="en" class="font-semibold text-neutral-900 dark:text-white">$1</strong>');
+      
+      // Italics
+      formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      // Inline Code
+      formatted = formatted.replace(/`(.*?)`/g, '<code class="bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+
+      // Paragraph breaks
+      const paragraphs = formatted.split(/\n\s*\n/);
+      return paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+    }
+  </script>
+</body>
+</html>
